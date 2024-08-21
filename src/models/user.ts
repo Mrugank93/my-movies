@@ -1,12 +1,11 @@
 import mongoose, { Schema } from "mongoose";
 import { string, z } from "zod";
 
-export const userSchemaType = z.object({
+export const userSchemaZod = z.object({
     email: string().email(),
     password: string()
 
 });
-export type finalUserSchema = z.infer<typeof userSchemaType>;
 
 const userSchema = new Schema(
     {

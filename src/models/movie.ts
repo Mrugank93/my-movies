@@ -1,4 +1,12 @@
 import mongoose, { Schema } from "mongoose";
+import { string, z } from "zod";
+
+export const movieSchemaZod = z.object({
+    title: string(),
+    image: string(),
+    year: string()
+
+});
 
 const movieSchema = new Schema(
     {
@@ -20,6 +28,6 @@ const movieSchema = new Schema(
     }
 );
 
-const Movie = mongoose.models.movieSchema || mongoose.model("User", movieSchema);
+const Movie = mongoose.models.Movie || mongoose.model("Movie", movieSchema);
 
 export default Movie;
