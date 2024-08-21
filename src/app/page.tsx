@@ -1,10 +1,27 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
+import axios from "axios";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 export default function Home() {
   const router = useRouter();
-  const handleLogin = () => {
-    router.push("/dashboard");
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  })
+  const [error, setError] = useState<any | string>(null);
+  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    try {
+      const response = await axios.post("/api/auth", formData);
+      console.log("Response", response.data.message);
+
+      if (response.status === 200) {
+        router.push("/dashboard");
+      }
+    } catch (error) {
+      console.log(error);
+      setError((error as any).response.data.message);
+    }
   };
 
   return (
@@ -13,7 +30,7 @@ export default function Home() {
         <h2 className="text-center text-[64px] font-bold leading-9 tracking-tight text-white">
           Sign in
         </h2>
-        <form className="space-y-6 mt-8">
+        <form className="space-y-6 mt-8" onSubmit={handleLogin}>
           <div>
             <div className="mt-2">
               <input
@@ -23,6 +40,7 @@ export default function Home() {
                 autoComplete="email"
                 placeholder="Email"
                 required
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 className="block w-full rounded-md bg-[#224957] py-3 px-4 text-white placeholder:text-gray-300 focus:ring-2 focus:ring-inset focus:ring-green-400"
               />
             </div>
@@ -36,8 +54,10 @@ export default function Home() {
                 autoComplete="current-password"
                 placeholder="Password"
                 required
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 className="block w-full rounded-md bg-[#224957] py-3 px-4 text-white text-[14px] placeholder:text-gray-300 focus:ring-2 focus:ring-inset focus:ring-green-400"
               />
+              {error && <p className="text-red-400 text-sm mt-3">{error}</p>}
             </div>
           </div>
           <div className="flex justify-center">
@@ -58,7 +78,6 @@ export default function Home() {
           </div>
           <div>
             <button
-              onClick={handleLogin}
               type="submit"
               className="flex w-full justify-center rounded-md text-[16px `] bg-[#2BD17E] px-4 py-3 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-[#2BD17E] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
             >
