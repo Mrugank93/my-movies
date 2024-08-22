@@ -1,34 +1,58 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
-import axios from "axios";
-import { useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 
 export default function Page() {
-  const [title, setTitle] = useState("");
-  const [year, setYear] = useState("");
-  const [image, setImage] = useState<File | null>(null);
+  const [formData, setFormData] = useState({
+    title: "",
+    year: "",
+  });
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [base64Image, setBase64Image] = useState<string | null>(null);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImage(file);
-      setImagePreview(URL.createObjectURL(file));
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        const base64String = reader.result as string;
+        setBase64Image(base64String);
+        setImagePreview(base64String); // Set preview
+      };
+
+      reader.readAsDataURL(file);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const formData = new FormData();
-      formData.append("title", title);
-      formData.append("year", year);
-      formData.append("image", image as Blob);
-      const res = await axios.post("/api/movies", formData);
+      const formDataToSend = {
+        ...formData,
+        image: base64Image, // Send base64 string of a single image
+      };
+
+      const res = await fetch("/api/movies", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formDataToSend),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to submit the form");
+      }
     } catch (error) {
-      console.error(error);
+      console.log(error);
     }
-    console.log({ title, year, image });
   };
 
   return (
@@ -37,10 +61,7 @@ export default function Page() {
         <h1 className="text-3xl sm:text-5xl font-bold mb-8 text-white text-center sm:text-left">
           Create a new movie
         </h1>
-        <form
-          onSubmit={handleSubmit}
-          className="flex flex-col sm:flex-row gap-8"
-        >
+        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-8">
           <div className="w-full sm:w-1/2 flex justify-center items-center border-2 border-dashed border-white h-60 sm:h-96 rounded-lg bg-[#224957]">
             <label className="flex flex-col justify-center items-center w-full h-full cursor-pointer">
               {imagePreview ? (
@@ -70,7 +91,7 @@ export default function Page() {
                     type="file"
                     className="hidden"
                     accept="image/*"
-                    onChange={handleImageChange}
+                    onChange={handleFileChange}
                   />
                 </>
               )}
@@ -80,16 +101,18 @@ export default function Page() {
           <div className="w-full sm:w-1/2 flex flex-col gap-6">
             <input
               type="text"
+              name="title"
               placeholder="Title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              value={formData.title}
+              onChange={handleChange}
               className="bg-[#224957] text-white px-5 py-3 rounded-lg outline-none text-lg"
             />
             <input
               type="text"
+              name="year"
               placeholder="Publishing Year"
-              value={year}
-              onChange={(e) => setYear(e.target.value)}
+              value={formData.year}
+              onChange={handleChange}
               className="bg-[#224957] text-white px-5 py-3 rounded-lg outline-none text-lg w-full sm:w-3/4 md:w-1/2 lg:w-1/2"
             />
 
