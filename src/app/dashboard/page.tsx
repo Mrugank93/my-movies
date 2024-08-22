@@ -15,11 +15,11 @@ export default function Page() {
           Your movie list is empty
         </h2>
       </div>
-      <div className="mt-6 md:mt-10">
+      <div className="mt-6 md:mt-10 w-full md:w-auto">
         <button
           onClick={handleClick}
           type="submit"
-          className="flex w-full justify-center rounded-md bg-[#2BD17E] px-6 py-3 text-sm font-semibold leading-6 text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
+          className="flex w-full md:w-auto justify-center rounded-md bg-[#2BD17E] px-6 py-3 text-sm font-semibold leading-6 text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
         >
           Add a new movie
         </button>
