@@ -1,10 +1,10 @@
 import mongoose, { Schema } from "mongoose";
-import { string, z } from "zod";
+import { number, string, z } from "zod";
 
 export const movieSchemaZod = z.object({
     title: string(),
     image: string(),
-    year: string()
+    year: number(),
 
 });
 
@@ -19,7 +19,7 @@ const movieSchema = new Schema(
             required: true
         },
         year: {
-            type: String,
+            type: Number,
             required: true
         },
     },

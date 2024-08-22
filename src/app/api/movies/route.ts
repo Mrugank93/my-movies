@@ -1,9 +1,34 @@
+import { isAuth } from "@/libs/Auth";
 import connectMogoDB from "@/libs/dbConnect";
 import Movie, { movieSchemaZod } from "@/models/movie";
 import { NextRequest, NextResponse } from "next/server";
-import { title } from "process";
 
+/**
+ * @swagger
+ * /api/movies:
+ *   get:
+ *     tags:
+ *         - Movie
+ *     summary: Get all movies
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Movies retrieved successfully
+ *       404:
+ *         description: No movies found
+ *       500:
+ *         description: Something went wrong
+ */
 export async function GET(req: NextRequest) {
+    const userId = await isAuth(req)
+    if (!userId) {
+        return NextResponse.json({ data: null, message: "Unauthorized You Must Login First", success: false }, { status: 401 });
+    }
     try {
         const { searchParams } = new URL(req.url);
         const page = parseInt(searchParams.get('page') || '1'); // Retrieve the 'page' query parameter
@@ -25,7 +50,39 @@ export async function GET(req: NextRequest) {
     }
 }
 
+/**
+ * @swagger
+ * /api/movies:
+ *   post:
+ *     tags:
+ *        - Movie
+ *     summary: Create a new movie
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               year:
+ *                 type: integer
+ *               image:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Movie created successfully
+ *       404:
+ *         description: Invalid inputs
+ *       500:
+ *         description: Something went wrong
+ */
 export async function POST(req: NextRequest) {
+    const userId = await isAuth(req)
+    if (!userId) {
+        return NextResponse.json({ data: null, message: "Unauthorized You Must Login First", success: false }, { status: 401 });
+    }
     try {
         await connectMogoDB();
         const { title, year, image } = await req.json();

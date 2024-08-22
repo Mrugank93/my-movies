@@ -1,8 +1,36 @@
 import connectMogoDB from "@/libs/dbConnect";
 import User, { userSchemaZod } from "@/models/user";
-import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
+import { NextRequest, NextResponse } from "next/server";
 
+
+
+/**
+ * @swagger
+ * /api/auth:
+ *   post:
+ *     tags:
+ *       - Authentication
+ *     summary: Create a new user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: User created successfully
+ *       404:
+ *         description: Invalid inputs
+ *       500:
+ *         description: Something went wrong
+ */
 export async function POST(req: NextRequest) {
     try {
         await connectMogoDB();

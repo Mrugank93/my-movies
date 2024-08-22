@@ -1,9 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
+import { deleteCookie } from "cookies-next";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
 const MOVIES_PER_PAGE = 8;
 
 export default function Movie() {
@@ -17,7 +17,7 @@ export default function Movie() {
     const fetchMovies = async () => {
       setLoading(true);
       try {
-          const res = await fetch(`/api/movies?page=${currentPage}`, {
+        const res = await fetch(`/api/movies?page=${currentPage}`, {
           method: "GET",
         });
         const data = await res.json();
@@ -28,7 +28,7 @@ export default function Movie() {
       } catch (error) {
         console.error(error);
       } finally {
-        setLoading(false); 
+        setLoading(false);
       }
     };
     fetchMovies();
@@ -47,8 +47,11 @@ export default function Movie() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    deleteCookie("token");
     router.push("/");
+  };
+  const handleEdit = (id: any) => {
+    router.push(`/add/${id}`);
   };
 
   return (
@@ -80,12 +83,15 @@ export default function Movie() {
           <div className="w-full max-w-5xl">
             <div className="flex justify-between items-start pt-4">
               <div className="text-2xl text-white font-bold mt-10 mb-6 flex items-center">
-                <span className="mr-2 text-[36px] sm:text-[48px]">My Movies</span>
+                <span className="mr-2 text-[36px] sm:text-[48px]">
+                  My Movies
+                </span>
                 <svg
                   width="32"
                   height="32"
                   viewBox="0 0 32 32"
                   fill="none"
+                  className="hover:cursor-pointer"
                   xmlns="http://www.w3.org/2000/svg"
                   onClick={handleLogin}
                 >
@@ -135,9 +141,12 @@ export default function Movie() {
                   key={movie._id}
                   className="bg-[#092C39] rounded-lg overflow-hidden shadow-lg transform hover:scale-105 transition-transform duration-300"
                 >
-                  <div className="relative w-full h-40 sm:h-60">
+                  <div
+                    className="relative w-full h-40 sm:h-60 hover:cursor-pointer"
+                    onClick={() => handleEdit(movie._id)}
+                  >
                     <Image
-                      src={movie.image}
+                      src={movie.image || "/default.jpg"}
                       alt={movie.title}
                       layout="fill"
                       objectFit="cover"
@@ -153,43 +162,43 @@ export default function Movie() {
                 </div>
               ))}
             </div>
-            <div className="flex justify-center mt-10 relative z-10">
-              <button
-                className={`text-white font-bold px-6 py-2 rounded-l-md transition-colors duration-200 ${
-                  currentPage === 1
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-[#2BD17E]"
-                }`}
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-              >
-                Prev
-              </button>
-
-              {Array.from({ length: totalPages }, (_, index) => (
+            <div className="flex flex-col items-center mt-10 relative z-10">
+              <div className="flex flex-wrap justify-center gap-2">
                 <button
-                  key={index + 1}
-                  className={`px-6 py-2 mx-1 rounded-md transition-colors duration-200 ${
-                    currentPage === index + 1
-                      ? "bg-[#2BD17E] text-white"
-                      : "bg-[#093545] text-white hover:bg-[#2BD17E] hover:text-white"
-                  }`}
-                  onClick={() => handlePageChange(index + 1)}
-                >
-                  {index + 1}
-                </button>
-              ))}
-              <button
-                className={`text-white font-bold px-6 py-2 rounded-r-md transition-colors duration-200 ${
-                  currentPage === totalPages
+                  className={`text-white font-bold px-4 py-2 rounded-l-md transition-colors duration-200 ${currentPage === 1
                     ? "opacity-50 cursor-not-allowed"
                     : "hover:bg-[#2BD17E]"
-                }`}
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-              >
-                Next
-              </button>
+                    }`}
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                >
+                  Prev
+                </button>
+
+                {Array.from({ length: totalPages }, (_, index) => (
+                  <button
+                    key={index + 1}
+                    className={`px-4 py-2 mx-1 rounded-md transition-colors duration-200 ${currentPage === index + 1
+                      ? "bg-[#2BD17E] text-white"
+                      : "bg-[#092C39] text-white hover:bg-[#2BD17E] hover:text-white"
+                      }`}
+                    onClick={() => handlePageChange(index + 1)}
+                  >
+                    {index + 1}
+                  </button>
+                ))}
+
+                <button
+                  className={`text-white font-bold px-4 py-2 rounded-r-md transition-colors duration-200 ${currentPage === totalPages
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-[#2BD17E]"
+                    }`}
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </button>
+              </div>
             </div>
           </div>
           <img

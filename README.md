@@ -5,8 +5,9 @@
 username :- test123@gmail.com
 password :- 123456
 ```
+## API Documentation
 
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+https://main.d216vd6mslhlad.amplifyapp.com/api-doc
 
 ## Getting Started
 

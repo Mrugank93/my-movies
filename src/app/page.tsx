@@ -1,13 +1,15 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import axios from "axios";
+import { setCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+
 export default function Home() {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+    email: "test123@gmail.com",
+    password: "mymovies",
   });
   const [error, setError] = useState<any | string>(null);
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -17,15 +19,26 @@ export default function Home() {
       console.log("Response", response.data.message);
       if (response.status === 200) {
         const { token } = response.data;
-        localStorage.setItem("token", token);
-        router.push("/dashboard");
+        setCookie("token", token, {
+          path: "/",
+          maxAge: 60 * 60 * 24, 
+          sameSite: "strict", 
+          secure: process.env.NODE_ENV === "production",
+        });
+        const res = await fetch(`/api/movies?page=1`, { method: "GET" });
+        const data = await res.json();
+        if (data.success && data.data.length) {
+          router.push("/movies");
+        } else {
+          router.push("/dashboard");
+        }
       }
     } catch (error) {
       console.log(error);
       setError((error as any).response.data.message);
     }
   };
-
+  
   return (
     <div className="flex min-h-screen flex-col justify-center items-center px-6 py-12 lg:px-8 relative overflow-hidden bg-[#093545]">
       <div className="relative z-10 sm:mx-auto sm:w-full sm:max-w-sm w-full">
@@ -39,6 +52,7 @@ export default function Home() {
                 id="email"
                 name="email"
                 type="email"
+                value={formData.email}
                 autoComplete="email"
                 placeholder="Email"
                 required
@@ -57,6 +71,7 @@ export default function Home() {
                 type="password"
                 autoComplete="current-password"
                 placeholder="Password"
+                value={formData.password}
                 required
                 onChange={(e) =>
                   setFormData({ ...formData, password: e.target.value })
