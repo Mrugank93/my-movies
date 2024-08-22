@@ -15,7 +15,7 @@ const movieSchema = new Schema(
             required: true
         },
         image: {
-            type: String,
+            type: Buffer,
             required: true
         },
         year: {

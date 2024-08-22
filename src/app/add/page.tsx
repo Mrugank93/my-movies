@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
+import axios from "axios";
 import { useState } from "react";
 
 export default function Page() {
@@ -16,8 +17,17 @@ export default function Page() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    try {
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("year", year);
+      formData.append("image", image as Blob);
+      const res = await axios.post("/api/movies", formData);
+    } catch (error) {
+      console.error(error);
+    }
     console.log({ title, year, image });
   };
 

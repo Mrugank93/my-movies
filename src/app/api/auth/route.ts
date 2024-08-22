@@ -1,6 +1,7 @@
 import connectMogoDB from "@/libs/dbConnect";
 import User, { userSchemaZod } from "@/models/user";
 import { NextRequest, NextResponse } from "next/server";
+import jwt from "jsonwebtoken";
 
 export async function POST(req: NextRequest) {
     try {
@@ -21,7 +22,13 @@ export async function POST(req: NextRequest) {
         if (user.password !== password) {
             return NextResponse.json({ message: "Password incorrect" }, { status: 401 });
         }
-        return NextResponse.json(user, { status: 200 });
+        const token = jwt.sign(
+            {
+                user: user._id,
+            },
+            process.env.JWT_SECRET as string,
+        );
+        return NextResponse.json({ token: token, message: "sign-in", success: true }, { status: 200 });
     } catch (error) {
         return NextResponse.json(error, { status: 500 });
     }
